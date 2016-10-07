@@ -1,3 +1,6 @@
 [submodule "Logger"]
 	path = Logger
 	url = https://github.com/klusekrules/Logger.git
+[submodule "Config"]
+	path = Config
+	url = https://github.com/klusekrules/Config.git
