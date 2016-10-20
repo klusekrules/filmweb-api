@@ -1,4 +1,3 @@
-#include "Config\Config.h"
 #include "Logger\Log.h"
 #include "filmweb-api\Filmweb.h"
 #include <iomanip>
@@ -29,7 +28,7 @@ int main() {
 	});
 	log.loguj(SLog::Log::Info, c["nazwa"]);
 	
-	Filmweb box;
+	Filmweb box(c);
 	std::string method = "getFilmInfoFull [10637]\\n";
 	box.send(method.c_str());
 	return 0;

@@ -1,10 +1,11 @@
 #pragma once
 #include "FilmwebSymbol.h"
+#include "Config\Config.h"
 
 class FILMWEB_API Filmweb {
 public:
 
-	Filmweb();
+	Filmweb(const Config &conf);
 	~Filmweb();
 
 	bool send(const char * method);
@@ -12,8 +13,8 @@ public:
 	int getErrorNo() const;
 
 	const char *getErrorStr() const;
-private:
 
+private:
 	void setError(int, const char*);
 	
 	char* host_;
@@ -24,8 +25,6 @@ private:
 	bool httpProxyTunnel_;
 
 	int errorNo_;
-	bool logPackets_;
-	bool logSSLPackets_;
 	int repeating_;
 	unsigned int generalTimeout_;
 	unsigned int dnsCacheTimeout_;

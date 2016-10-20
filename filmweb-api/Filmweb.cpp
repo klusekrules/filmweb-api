@@ -8,7 +8,7 @@
 #include "curl/curl.h"
 #include "md5.h"
 
-std::string url_encode(const std::string &value) {
+static std::string url_encode(const std::string &value) {
 	std::ostringstream escaped;
 	escaped.fill('0');
 	escaped << std::hex;
@@ -31,11 +31,9 @@ std::string url_encode(const std::string &value) {
 	return escaped.str();
 }
 
-Filmweb::Filmweb()
+Filmweb::Filmweb(const Config &conf)
 	: host_(NULL), errorStr_(NULL), proxyHost_(NULL), proxyUser_(NULL), httpProxyTunnel_(NULL)
 {
-	logPackets_ = true;
-	logSSLPackets_ = true;
 	//size_t len = strlen("http://www.filmweb.pl/search") + 1;
 	size_t len = strlen("https://ssl.filmweb.pl") + 1;
 	host_ = new char[len];
@@ -105,54 +103,6 @@ static void dump(const char *text, FILE *stream, unsigned char *ptr, size_t size
 	}
 }
 
-static int my_trace(CURL*, curl_infotype type, char *data, size_t size, void *userp, bool detail) {
-	const char *text;
-	FILE* fp = (FILE*)userp;
-
-	bool bDetail = true;
-
-	switch (type)
-	{
-	case CURLINFO_TEXT:
-		fprintf(fp, "== Info: %s", data);
-	default: 
-		return 0;
-
-	case CURLINFO_HEADER_OUT:
-		text = "=> Send header";
-		break;
-	case CURLINFO_DATA_OUT:
-		text = "=> Send data";
-		break;
-	case CURLINFO_SSL_DATA_OUT:
-		bDetail = detail;
-		text = "=> Send SSL data";
-		break;
-	case CURLINFO_HEADER_IN:
-		text = "<= Recv header";
-		break;
-	case CURLINFO_DATA_IN:
-		text = "<= Recv data";
-		break;
-	case CURLINFO_SSL_DATA_IN:
-		bDetail = detail;
-		text = "<= Recv SSL data";
-		break;
-	}
-
-	dump(text, fp, (unsigned char *)data, size, bDetail);
-	return 0;
-}
-
-static int traceALL(CURL* curl, curl_infotype type, char *data, size_t size, void *userp) {
-	return my_trace(curl, type, data, size, userp, true);
-}
-
-static int traceWithoutSSL(CURL* curl, curl_infotype type, char *data, size_t size, void *userp) {
-	return my_trace(curl, type, data, size, userp, false);
-}
-
-
 void Filmweb::setError(int numer, const char* komunikat) {
 	if (komunikat != NULL) {
 		errorNo_ = numer;
@@ -202,10 +152,10 @@ bool Filmweb::send(const char * method) {
 
 			// Ustawienia proxy
 			if (proxyHost_ != NULL) {
-			curl_easy_setopt(curl, CURLOPT_PROXY, proxyHost_);
-			curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, proxyUser_);
-			if (httpProxyTunnel_)
-			curl_easy_setopt(curl, CURLOPT_HTTPPROXYTUNNEL, 1);
+				curl_easy_setopt(curl, CURLOPT_PROXY, proxyHost_);
+				curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, proxyUser_);
+				if (httpProxyTunnel_)
+					curl_easy_setopt(curl, CURLOPT_HTTPPROXYTUNNEL, 1);
 			}
 
 			curl_easy_setopt(curl, CURLOPT_TIMEOUT, generalTimeout_);

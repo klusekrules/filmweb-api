@@ -1,1 +1,10 @@
-nazwa=wartosc
+searchHost = http://www.filmweb.pl/search
+dataHost = https://ssl.filmweb.pl
+#proxyHost = NULL;
+#proxyUser = NULL;
+#httpProxyTunnel = false;
+repeating = 1;
+generalTimeout = 10;
+dnsCacheTimeout = 10;
+expect100TimeoutMS = 10;
+connectionTimeout = 10;
