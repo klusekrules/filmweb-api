@@ -102,8 +102,8 @@
     </ClCompile>
     <Link>
       <ImportLibrary>$(SolutionDir)libs\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
-      <AdditionalDependencies>libcurl.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\libs\$(PlatformShortName)\dll;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;libcurl_debug.lib;libeay32.lib;ssleay32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\libs\$(PlatformShortName);C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -3,7 +3,6 @@
 
 class FILMWEB_API Filmweb {
 public:
-	//static std::string md5(const std::string &);
 
 	Filmweb();
 	~Filmweb();

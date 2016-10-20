@@ -6,13 +6,31 @@
 #include <iomanip>
 #include <functional>
 #include "curl/curl.h"
-//#include "md5.h"
-/*
-std::string Filmweb::md5(const std::string & str)
-{
-	return std::string(::md5(str));
+#include "md5.h"
+
+std::string url_encode(const std::string &value) {
+	std::ostringstream escaped;
+	escaped.fill('0');
+	escaped << std::hex;
+
+	for (std::string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+		std::string::value_type c = (*i);
+
+		// Keep alphanumeric and other accepted characters intact
+		if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+			escaped << c;
+			continue;
+		}
+
+		// Any other characters are percent-encoded
+		escaped << std::uppercase;
+		escaped << '%' << std::setw(2) << int((unsigned char)c);
+		escaped << std::nouppercase;
+	}
+
+	return escaped.str();
 }
-*/
+
 Filmweb::Filmweb()
 	: host_(NULL), errorStr_(NULL), proxyHost_(NULL), proxyUser_(NULL), httpProxyTunnel_(NULL)
 {
@@ -86,7 +104,7 @@ static void dump(const char *text, FILE *stream, unsigned char *ptr, size_t size
 		fputc('\n', stream); /* newline */
 	}
 }
-/*
+
 static int my_trace(CURL*, curl_infotype type, char *data, size_t size, void *userp, bool detail) {
 	const char *text;
 	FILE* fp = (FILE*)userp;
@@ -133,7 +151,7 @@ static int traceALL(CURL* curl, curl_infotype type, char *data, size_t size, voi
 static int traceWithoutSSL(CURL* curl, curl_infotype type, char *data, size_t size, void *userp) {
 	return my_trace(curl, type, data, size, userp, false);
 }
-*/
+
 
 void Filmweb::setError(int numer, const char* komunikat) {
 	if (komunikat != NULL) {
@@ -154,6 +172,9 @@ void Filmweb::setError(int numer, const char* komunikat) {
 }
 
 bool Filmweb::send(const char * method) {
+
+	std::string query = "api?methods=" + url_encode(method) + "&signature=1.0," + ::md5(std::string(method) + "androidqjcGhW2JnvGT9dfCt3uT_jozR3s") + "&version=1.0&appId=android";
+	method = query.c_str();
 	std::string serialized;
 	if (method == NULL) {
 		setError(91, "Method name is null.");
@@ -166,7 +187,7 @@ bool Filmweb::send(const char * method) {
 
 	std::vector <char> bufor;
 
-	/*for (int iteration = repeating_; iteration >0; --iteration) {
+	for (int iteration = repeating_; iteration >0; --iteration) {
 		CURL* curl = curl_easy_init();
 		if (curl) {
 			//headers = curl_slist_append(headers, "User-Agent: Mozilla / 5.0 (Linux; Android 4.1.1; Galaxy Nexus Build / JRO03C) AppleWebKit / 535.19 (KHTML, like Gecko) Chrome / 18.0.1025.166 Mobile Safari / 535.19");
@@ -180,7 +201,7 @@ bool Filmweb::send(const char * method) {
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&bufor);
 
 			// Ustawienia proxy
-			/*if (proxyHost_ != NULL) {
+			if (proxyHost_ != NULL) {
 			curl_easy_setopt(curl, CURLOPT_PROXY, proxyHost_);
 			curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, proxyUser_);
 			if (httpProxyTunnel_)
@@ -227,7 +248,7 @@ bool Filmweb::send(const char * method) {
 	}
 
 	//Przygotowanie do parsowania odebranych danych
-	fwrite(&bufor[0], bufor.size(), 1, fp);*/
+	fwrite(&bufor[0], bufor.size(), 1, fp);
 	return true;
 }
 
