@@ -116,7 +116,8 @@
     </ClCompile>
     <Link>
       <ImportLibrary>$(SolutionDir)libs\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
-      <AdditionalDependencies>libcurl.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;libcurl_debug.lib;libeay32.lib;ssleay32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\libs\$(PlatformShortName);C:\Program Files (x86)\Visual Leak Detector\lib\Win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,7 +134,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>$(SolutionDir)libs\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
-      <AdditionalDependencies>libcurl.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;libcurl.lib;libeay32.lib;ssleay32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\libs\$(PlatformShortName);C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,7 +152,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>$(SolutionDir)libs\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
-      <AdditionalDependencies>libcurl.lib</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wldap32.lib;libcurl.lib;libeay32.lib;ssleay32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\libs\$(PlatformShortName);C:\Program Files (x86)\Visual Leak Detector\lib\Win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
