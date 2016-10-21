@@ -26,10 +26,9 @@ int main() {
 		}
 		plik << czas << sTyp << komunikat << std::endl << std::flush;
 	});
-	log.loguj(SLog::Log::Info, c["nazwa"]);
 	
 	Filmweb box(c);
-	std::string method = "getFilmInfoFull [10637]\\n";
-	box.send(method.c_str());
+	box.getDetails(10637);
+	box.getSearch(std::string("Minions"));
 	return 0;
 }

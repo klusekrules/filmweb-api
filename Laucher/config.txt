@@ -1,4 +1,4 @@
-searchHost = http://www.filmweb.pl/search
+searchHost = http://www.filmweb.pl/search/live?q=
 dataHost = https://ssl.filmweb.pl
 #proxyHost = NULL;
 #proxyUser = NULL;

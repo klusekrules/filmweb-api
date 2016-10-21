@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <functional>
+#include <algorithm>
 #include "curl/curl.h"
 #include "md5.h"
 
@@ -32,33 +33,59 @@ static std::string url_encode(const std::string &value) {
 }
 
 Filmweb::Filmweb(const Config &conf)
-	: host_(NULL), errorStr_(NULL), proxyHost_(NULL), proxyUser_(NULL), httpProxyTunnel_(NULL)
+	: httpProxyTunel_(false)
 {
-	//size_t len = strlen("http://www.filmweb.pl/search") + 1;
-	size_t len = strlen("https://ssl.filmweb.pl") + 1;
-	host_ = new char[len];
-	//strcpy(host_, "http://www.filmweb.pl/search");
-	strcpy(host_, "https://ssl.filmweb.pl");
-	proxyHost_ = NULL;
-	proxyUser_ = NULL;
-	httpProxyTunnel_ = false;
-	repeating_ = 1;
-	generalTimeout_ = 10;
-	dnsCacheTimeout_ = 10;
-	expect100TimeoutMS_ = 10;
-	connectionTimeout_ = 10;
+
+	auto searchHost = conf["searchHost"];
+	if (searchHost)
+		searchHost_ = searchHost;
+
+	auto dataHost = conf["dataHost"];
+	if (dataHost)
+		dataHost_ = dataHost;
+
+	auto proxyHost = conf["proxyHost"];
+	if (proxyHost)
+		proxyHost_ = proxyHost_;
+
+	auto proxyUser = conf["proxyUser"];
+	if (proxyUser)
+		proxyUser_ = proxyUser;
+
+	auto httpProxyTunel = conf["httpProxyTunel"];
+	if (httpProxyTunel) {
+		std::string data = httpProxyTunel;
+		std::transform(data.begin(),
+			data.end(),
+			data.begin(),
+			::tolower);
+		httpProxyTunel_ = data == "true";
+	}
+
+	auto repeating = conf["repeating"];
+	if (repeating)
+		repeating_ = std::stoi(repeating);
+
+	auto generalTimeout = conf["generalTimeout"];
+	if (generalTimeout)
+		generalTimeout_ = std::stoi(generalTimeout);
+
+	auto dnsCacheTimeout = conf["dnsCacheTimeout"];
+	if (dnsCacheTimeout)
+		dnsCacheTimeout_ = std::stoi(dnsCacheTimeout);
+
+	auto expect100Timeout = conf["expect100TimeoutMS"];
+	if (expect100Timeout)
+		expect100Timeout_ = std::stoi(expect100Timeout);
+
+	auto connectionTimeout = conf["connectionTimeout"];
+	if (connectionTimeout)
+		connectionTimeout_ = std::stoi(connectionTimeout);
+	
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
 Filmweb::~Filmweb() {
-	if (host_ != NULL)
-		delete[] host_;
-	if (errorStr_ != NULL)
-		delete[] errorStr_;
-	if (proxyHost_ != NULL)
-		delete[] proxyHost_;
-	if (proxyUser_ != NULL)
-		delete[] proxyUser_;
 	curl_global_cleanup();
 }
 
@@ -72,94 +99,36 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 	return realsize;
 }
 
-static void dump(const char *text, FILE *stream, unsigned char *ptr, size_t size, bool detail) {
-	size_t i;
-	size_t c;
-	unsigned int width = 0x10;
-
-	fprintf(stream, "%s, %10.10ld bytes (0x%8.8lx)\n", text, (long)size, (long)size);
-
-	if (!detail)
-		return;
-
-	for (i = 0; i<size; i += width)
-	{
-		fprintf(stream, "%4.4lx: ", (long)i);
-
-		/* show hex to the left */
-		for (c = 0; c < width; c++)
-		{
-			if (i + c < size)
-				fprintf(stream, "%02x ", ptr[i + c]);
-			else
-				fputs(" ", stream);
-		}
-
-		/* show data on the right */
-		for (c = 0; (c < width) && (i + c < size); c++)
-			fputc((ptr[i + c] >= 0x20) && (ptr[i + c]<0x80) ? ptr[i + c] : '.', stream);
-
-		fputc('\n', stream); /* newline */
-	}
-}
-
 void Filmweb::setError(int numer, const char* komunikat) {
 	if (komunikat != NULL) {
 		errorNo_ = numer;
-		if (errorStr_ != NULL) {
-			delete[] errorStr_;
-		}
-		errorStr_ = new char[strlen(komunikat) + 1];
-		strcpy(errorStr_, komunikat);
-	}
-	else {
+		errorStr_ = komunikat;
+	} else {
 		errorNo_ = 0;
-		if (errorStr_ != NULL) {
-			delete[] errorStr_;
-		}
-		errorStr_ = NULL;
+		errorStr_.clear();
 	}
 }
 
-bool Filmweb::send(const char * method) {
-
-	std::string query = "api?methods=" + url_encode(method) + "&signature=1.0," + ::md5(std::string(method) + "androidqjcGhW2JnvGT9dfCt3uT_jozR3s") + "&version=1.0&appId=android";
-	method = query.c_str();
-	std::string serialized;
-	if (method == NULL) {
-		setError(91, "Method name is null.");
-		return false;
-	}
-
-	FILE* fp;
-	fp = fopen("output.log", "a+");
-
-
-	std::vector <char> bufor;
-
+bool Filmweb::send(const char * method, std::vector <char>& out) {
 	for (int iteration = repeating_; iteration >0; --iteration) {
 		CURL* curl = curl_easy_init();
 		if (curl) {
 			//headers = curl_slist_append(headers, "User-Agent: Mozilla / 5.0 (Linux; Android 4.1.1; Galaxy Nexus Build / JRO03C) AppleWebKit / 535.19 (KHTML, like Gecko) Chrome / 18.0.1025.166 Mobile Safari / 535.19");
-			std::string s;
-			s.append(host_);
-			s.append("/");
-			s.append(method);
-
-			curl_easy_setopt(curl, CURLOPT_URL, s.c_str());
+			
+			curl_easy_setopt(curl, CURLOPT_URL, method);
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&bufor);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&out);
 
 			// Ustawienia proxy
-			if (proxyHost_ != NULL) {
+			if (!proxyHost_.empty()) {
 				curl_easy_setopt(curl, CURLOPT_PROXY, proxyHost_);
 				curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, proxyUser_);
-				if (httpProxyTunnel_)
+				if (httpProxyTunel_)
 					curl_easy_setopt(curl, CURLOPT_HTTPPROXYTUNNEL, 1);
 			}
 
 			curl_easy_setopt(curl, CURLOPT_TIMEOUT, generalTimeout_);
-			curl_easy_setopt(curl, CURLOPT_EXPECT_100_TIMEOUT_MS, expect100TimeoutMS_);
+			curl_easy_setopt(curl, CURLOPT_EXPECT_100_TIMEOUT_MS, expect100Timeout_);
 			curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout_);
 			curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, connectionTimeout_);
 
@@ -169,9 +138,6 @@ bool Filmweb::send(const char * method) {
 			CURLcode res = curl_easy_perform(curl);
 			if (res != CURLE_OK) {
 				setError(res, curl_easy_strerror(res));
-
-				auto str = std::string("Failed: ") + curl_easy_strerror(res) + "\n";
-				fwrite(str.c_str(), str.length(), 1, fp);
 				curl_easy_cleanup(curl);
 				continue;
 			}
@@ -181,24 +147,19 @@ bool Filmweb::send(const char * method) {
 			//errorStr_.clear();
 			break;
 		}
-		if (bufor.empty()) {
+		if (out.empty()) {
 			setError(92, "No data received");
 			continue;
 		}
-
 	}
 
-	if (errorNo_ != 0) {
+	if (errorNo_ != 0)
 		return false;
-	}
 
-	if (bufor.empty()) {
+	if (out.empty()) {
 		setError(92, "No data received");
 		return false;
 	}
-
-	//Przygotowanie do parsowania odebranych danych
-	fwrite(&bufor[0], bufor.size(), 1, fp);
 	return true;
 }
 
@@ -207,5 +168,42 @@ int Filmweb::getErrorNo() const {
 }
 
 const char* Filmweb::getErrorStr() const {
-	return errorStr_;
+	return errorStr_.c_str();
 }
+
+bool Filmweb::getDetails(int id){
+	std::stringstream sMethod, sQuery;
+	std::vector<char> bufor;
+	sMethod << "getFilmInfoFull [" << id << "]\\n";
+	sQuery << dataHost_ << "/api?methods=" << url_encode(sMethod.str()) << "&signature=1.0,";
+	sMethod << "androidqjcGhW2JnvGT9dfCt3uT_jozR3s";
+	sQuery << ::md5(sMethod.str()) << "&version=1.0&appId=android";
+	if (!send(sQuery.str().c_str(), bufor))
+		return false;
+	FILE *fp;
+	fopen_s(&fp, "returnData.txt", "wb");
+	fwrite(bufor.data(), sizeof(char), bufor.size(), fp);
+	fclose(fp);
+	return true;
+}
+
+bool Filmweb::getSearch(std::string & text){
+	std::stringstream sQuery;
+	std::vector<char> bufor;
+	sQuery << searchHost_ << url_encode(text);
+	if (!send(sQuery.str().c_str(), bufor))
+		return false;
+	FILE *fp;
+	fopen_s(&fp, "returnData.txt", "wb");
+	fwrite(bufor.data(), sizeof(char), bufor.size(), fp);
+	fclose(fp);
+	return false;
+}
+
+/*std::string query = "api?methods=" + url_encode(method) + "&signature=1.0," + ::md5(std::string(method) + "androidqjcGhW2JnvGT9dfCt3uT_jozR3s") + "&version=1.0&appId=android";
+method = query.c_str();
+std::string serialized;
+if (method == NULL) {
+setError(91, "Method name is null.");
+return false;
+}*/

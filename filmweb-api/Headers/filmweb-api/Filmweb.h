@@ -1,41 +1,39 @@
 #pragma once
 #include "FilmwebSymbol.h"
 #include "Config\Config.h"
+#include <vector>
 
 class FILMWEB_API Filmweb {
 public:
 
 	Filmweb(const Config &conf);
 	~Filmweb();
-
-	bool send(const char * method);
+	
+	bool getDetails(int id);
+	bool getSearch(std::string& text);
 
 	int getErrorNo() const;
 
 	const char *getErrorStr() const;
 
 private:
-	void setError(int, const char*);
-	
-	char* host_;
-	char* errorStr_;
+	bool send(const char * method, std::vector <char>& out);
 
-	char* proxyHost_;
-	char* proxyUser_;
-	bool httpProxyTunnel_;
+	void setError(int, const char*);
+
+	std::string searchHost_;
+	std::string dataHost_;
+
+	std::string proxyHost_;
+	std::string proxyUser_;
+	bool httpProxyTunel_;
+	
+	int repeating_;
+	int generalTimeout_;
+	int dnsCacheTimeout_;
+	int expect100Timeout_;
+	int connectionTimeout_;
 
 	int errorNo_;
-	int repeating_;
-	unsigned int generalTimeout_;
-	unsigned int dnsCacheTimeout_;
-	unsigned int expect100TimeoutMS_;
-	unsigned int connectionTimeout_;
-
-
-	char* userName_;
-	char* authKey_;
-	char* storeId_;
-	char* storePass_;
-	int timeSession_;
-
+	std::string errorStr_;
 };
