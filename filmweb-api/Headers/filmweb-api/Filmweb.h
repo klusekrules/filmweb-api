@@ -3,37 +3,39 @@
 #include "Config\Config.h"
 #include <vector>
 
-class FILMWEB_API Filmweb {
-public:
+namespace Filmweb {
+	class FILMWEB_API Filmweb {
+	public:
 
-	Filmweb(const Config &conf);
-	~Filmweb();
-	
-	bool getDetails(int id);
-	bool getSearch(std::string& text);
+		Filmweb(const Config &conf);
+		~Filmweb();
 
-	int getErrorNo() const;
+		bool getDetails(int id);
+		bool getSearch(std::string& text);
 
-	const char *getErrorStr() const;
+		int getErrorNo() const;
 
-private:
-	bool send(const char * method, std::vector <char>& out);
+		const char *getErrorStr() const;
 
-	void setError(int, const char*);
+	private:
+		bool send(const char * method, std::vector <char>& out);
 
-	std::string searchHost_;
-	std::string dataHost_;
+		void setError(int, const char*);
 
-	std::string proxyHost_;
-	std::string proxyUser_;
-	bool httpProxyTunel_;
-	
-	int repeating_;
-	int generalTimeout_;
-	int dnsCacheTimeout_;
-	int expect100Timeout_;
-	int connectionTimeout_;
+		std::string searchHost_;
+		std::string dataHost_;
 
-	int errorNo_;
-	std::string errorStr_;
-};
+		std::string proxyHost_;
+		std::string proxyUser_;
+		bool httpProxyTunel_;
+
+		int repeating_;
+		int generalTimeout_;
+		int dnsCacheTimeout_;
+		int expect100Timeout_;
+		int connectionTimeout_;
+
+		int errorNo_;
+		std::string errorStr_;
+	};
+}
