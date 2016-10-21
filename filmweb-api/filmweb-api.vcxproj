@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\filmweb-api\Film.h" />
     <ClInclude Include="Headers\filmweb-api\Filmweb.h" />
     <ClInclude Include="Headers\filmweb-api\FilmwebSymbol.h" />
     <ClInclude Include="md5.h" />

@@ -27,7 +27,7 @@ int main() {
 		plik << czas << sTyp << komunikat << std::endl << std::flush;
 	});
 	
-	Filmweb box(c);
+	Filmweb::Filmweb box(c);
 	box.getDetails(10637);
 	box.getSearch(std::string("Minions"));
 	return 0;

@@ -24,6 +24,9 @@
     <ClInclude Include="Headers\filmweb-api\FilmwebSymbol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\filmweb-api\Film.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="md5.cpp">
