@@ -12,7 +12,7 @@ using namespace std;
 
 int main() {
 	_setmode(_fileno(stdout), _O_U16TEXT);
-	Config c("config.txt");
+	WConfig c(L"config.txt");
 	/*auto& log = SLog::Log::pobierzInstancje();
 	log.dodajGniazdoWyjsciowe([](SLog::Log::TypLogow typ, const std::string& czas, const std::string& komunikat)->void {
 		static std::fstream plik("out.log", std::fstream::app);

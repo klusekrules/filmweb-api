@@ -9,7 +9,7 @@ namespace Filmweb {
 	class FILMWEB_API Filmweb {
 	public:
 
-		Filmweb(const Config &conf);
+		Filmweb(const WConfig &conf);
 		~Filmweb();
 
 		bool getFilmInfoFull(const SearchResult& element, Film& film);

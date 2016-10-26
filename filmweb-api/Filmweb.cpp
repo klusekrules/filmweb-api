@@ -55,53 +55,53 @@ namespace Filmweb {
 		return escaped.str();
 	}
 
-	Filmweb::Filmweb(const Config &conf)
+	Filmweb::Filmweb(const WConfig &conf)
 		: httpProxyTunel_(false)
 	{
 
-		auto searchHost = conf["searchHost"];
+		auto searchHost = conf[L"searchHost"];
 		if (searchHost)
-			searchHost_ = utf8_decode(searchHost);
+			searchHost_ = searchHost;
 
-		auto dataHost = conf["dataHost"];
+		auto dataHost = conf[L"dataHost"];
 		if (dataHost)
-			dataHost_ = utf8_decode(dataHost);
+			dataHost_ = dataHost;
 
-		auto proxyHost = conf["proxyHost"];
+		auto proxyHost = conf[L"proxyHost"];
 		if (proxyHost)
 			proxyHost_ = proxyHost_;
 
-		auto proxyUser = conf["proxyUser"];
+		auto proxyUser = conf[L"proxyUser"];
 		if (proxyUser)
-			proxyUser_ = utf8_decode(proxyUser);
+			proxyUser_ = proxyUser;
 
-		auto httpProxyTunel = conf["httpProxyTunel"];
+		auto httpProxyTunel = conf[L"httpProxyTunel"];
 		if (httpProxyTunel) {
-			std::string data = httpProxyTunel;
+			std::wstring data = httpProxyTunel;
 			std::transform(data.begin(),
 				data.end(),
 				data.begin(),
 				::tolower);
-			httpProxyTunel_ = data == "true";
+			httpProxyTunel_ = data == L"true";
 		}
 
-		auto repeating = conf["repeating"];
+		auto repeating = conf[L"repeating"];
 		if (repeating)
 			repeating_ = std::stoi(repeating);
 
-		auto generalTimeout = conf["generalTimeout"];
+		auto generalTimeout = conf[L"generalTimeout"];
 		if (generalTimeout)
 			generalTimeout_ = std::stoi(generalTimeout);
 
-		auto dnsCacheTimeout = conf["dnsCacheTimeout"];
+		auto dnsCacheTimeout = conf[L"dnsCacheTimeout"];
 		if (dnsCacheTimeout)
 			dnsCacheTimeout_ = std::stoi(dnsCacheTimeout);
 
-		auto expect100Timeout = conf["expect100TimeoutMS"];
+		auto expect100Timeout = conf[L"expect100TimeoutMS"];
 		if (expect100Timeout)
 			expect100Timeout_ = std::stoi(expect100Timeout);
 
-		auto connectionTimeout = conf["connectionTimeout"];
+		auto connectionTimeout = conf[L"connectionTimeout"];
 		if (connectionTimeout)
 			connectionTimeout_ = std::stoi(connectionTimeout);
 
