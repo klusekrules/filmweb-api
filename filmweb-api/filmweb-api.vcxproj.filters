@@ -27,12 +27,21 @@
     <ClInclude Include="Headers\filmweb-api\Film.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\filmweb-api\SearchResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\filmweb-api\SearchConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="md5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Filmweb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SearchConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -160,11 +160,14 @@
     <ClInclude Include="Headers\filmweb-api\Film.h" />
     <ClInclude Include="Headers\filmweb-api\Filmweb.h" />
     <ClInclude Include="Headers\filmweb-api\FilmwebSymbol.h" />
+    <ClInclude Include="Headers\filmweb-api\SearchConverter.h" />
+    <ClInclude Include="Headers\filmweb-api\SearchResult.h" />
     <ClInclude Include="md5.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Filmweb.cpp" />
     <ClCompile Include="md5.cpp" />
+    <ClCompile Include="SearchConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Config\Config.vcxproj">

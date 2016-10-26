@@ -1,5 +1,6 @@
 #pragma once
 #include "FilmwebSymbol.h"
+#include "SearchResult.h"
 #include "Config\Config.h"
 #include <vector>
 
@@ -11,14 +12,14 @@ namespace Filmweb {
 		~Filmweb();
 
 		bool getDetails(int id);
-		bool getSearch(std::string& text);
+		bool getSearch(const std::string& text, std::vector<SearchResult>& result);
 
 		int getErrorNo() const;
 
 		const char *getErrorStr() const;
 
 	private:
-		bool send(const char * method, std::vector <char>& out);
+		bool send(const char * method, std::string& out);
 
 		void setError(int, const char*);
 

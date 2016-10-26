@@ -29,6 +29,7 @@ int main() {
 	
 	Filmweb::Filmweb box(c);
 	box.getDetails(10637);
-	box.getSearch(std::string("Minions"));
+	std::vector<Filmweb::SearchResult> data;
+	box.getSearch(std::string("Minions"),data);
 	return 0;
 }

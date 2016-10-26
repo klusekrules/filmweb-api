@@ -8,8 +8,10 @@
 #include <algorithm>
 #include "curl/curl.h"
 #include "md5.h"
+#include "SearchConverter.h"
 
 namespace Filmweb {
+
 	static std::string url_encode(const std::string &value) {
 		std::ostringstream escaped;
 		escaped.fill('0');
@@ -92,7 +94,7 @@ namespace Filmweb {
 
 	static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
 		size_t realsize = size * nmemb;
-		std::vector <char>& bufor = *((std::vector <char> *)userp);
+		std::string& bufor = *((std::string*)userp);
 		bufor.reserve(bufor.size() + realsize);
 		char* content = (char*)contents;
 		for (size_t i = 0; i < realsize; ++i)
@@ -111,7 +113,7 @@ namespace Filmweb {
 		}
 	}
 
-	bool Filmweb::send(const char * method, std::vector <char>& out) {
+	bool Filmweb::send(const char * method, std::string& out) {
 		for (int iteration = repeating_; iteration > 0; --iteration) {
 			CURL* curl = curl_easy_init();
 			if (curl) {
@@ -175,7 +177,7 @@ namespace Filmweb {
 
 	bool Filmweb::getDetails(int id) {
 		std::stringstream sMethod, sQuery;
-		std::vector<char> bufor;
+		std::string bufor;
 		sMethod << "getFilmInfoFull [" << id << "]\\n";
 		sQuery << dataHost_ << "/api?methods=" << url_encode(sMethod.str()) << "&signature=1.0,";
 		sMethod << "androidqjcGhW2JnvGT9dfCt3uT_jozR3s";
@@ -189,17 +191,15 @@ namespace Filmweb {
 		return true;
 	}
 
-	bool Filmweb::getSearch(std::string & text) {
+	bool Filmweb::getSearch(const std::string & text, std::vector<SearchResult>& result) {
 		std::stringstream sQuery;
-		std::vector<char> bufor;
+		std::string bufor;
 		sQuery << searchHost_ << url_encode(text);
 		if (!send(sQuery.str().c_str(), bufor))
 			return false;
-		FILE *fp;
-		fopen_s(&fp, "returnData.txt", "wb");
-		fwrite(bufor.data(), sizeof(char), bufor.size(), fp);
-		fclose(fp);
-		return false;
+
+		SearchConverter conv;
+		return conv.convertResponse(bufor,result);
 	}
 
 	/*std::string query = "api?methods=" + url_encode(method) + "&signature=1.0," + ::md5(std::string(method) + "androidqjcGhW2JnvGT9dfCt3uT_jozR3s") + "&version=1.0&appId=android";

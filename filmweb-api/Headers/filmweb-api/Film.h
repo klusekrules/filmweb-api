@@ -3,8 +3,7 @@
 #include <string>
 
 namespace Filmweb {
-	class FILMWEB_API Film {
-	public:
+	struct FILMWEB_API Film {
 		Film() = default;
 		~Film() = default;
 		int id_;
