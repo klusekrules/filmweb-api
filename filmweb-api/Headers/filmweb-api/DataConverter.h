@@ -15,6 +15,7 @@ namespace Filmweb {
 		static std::wstring extractData(const std::wstring& data, const std::wstring& prefix, const std::wstring& sufix);
 		std::wstring extractField(const std::wstring& data, size_t& pos);
 		bool concatToVector(const std::wstring& data, std::vector<std::wstring>& table);
+		std::wstring removeEscapeChars(const std::wstring& data);
 
 	public:
 		DataConverter() = default;

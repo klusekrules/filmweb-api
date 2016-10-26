@@ -27,8 +27,8 @@ namespace Filmweb {
 		if (table.empty())
 			return false;
 
-		if (table.size() >= 1)
-			out.type_ = table[0][0];
+		if (table.size() >= 1 && !table[0].empty())
+			out.type_ = static_cast<char>(table[0][0]);
 
 		if (table.size() >= 2)
 			out.id_ = stoi(table[1]);

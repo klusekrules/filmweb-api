@@ -50,13 +50,26 @@ namespace Filmweb {
 			table.emplace_back(extractField(data, pos));
 		return true;
 	}
+
+	std::wstring DataConverter::removeEscapeChars(const std::wstring & data) {
+		std::wstring result;
+		result.reserve(data.size());
+		auto pos = std::wstring::npos;
+		decltype(pos) offset = 0;
+		do {
+			pos = data.find(escapeChar, offset);
+			result.append(data, offset, pos == std::wstring::npos ? pos : pos - offset);
+			offset = pos + escapeChar.size();
+		} while (pos != std::wstring::npos);
+		return result;
+	}
 	
 	bool DataConverter::convertResponse(const std::wstring& data, Film& film) {
 		std::vector<std::wstring> lines;
 
 		if (!concatToVector(extractData(data,nawiasOtwierajacy,nawiasZamykajacy),lines))
 			return false;
-		film.zarysFabu³y_ = lines[19];
+		film.zarysFabu³y_ = removeEscapeChars(extractData(lines[19],cudzyslow,cudzyslow));
 		return true;
 	}
 }
