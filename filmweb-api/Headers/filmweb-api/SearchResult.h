@@ -6,7 +6,7 @@ namespace Filmweb {
 	struct FILMWEB_API SearchResult {
 		char type_;
 		int id_;
-		std::string name_;
+		std::wstring name_;
 		int year_;
 	};
 }

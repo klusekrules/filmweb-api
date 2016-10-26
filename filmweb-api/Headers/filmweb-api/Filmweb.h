@@ -1,6 +1,7 @@
 #pragma once
 #include "FilmwebSymbol.h"
 #include "SearchResult.h"
+#include "Film.h"
 #include "Config\Config.h"
 #include <vector>
 
@@ -11,23 +12,23 @@ namespace Filmweb {
 		Filmweb(const Config &conf);
 		~Filmweb();
 
-		bool getDetails(int id);
-		bool getSearch(const std::string& text, std::vector<SearchResult>& result);
+		bool getFilmInfoFull(const SearchResult& element, Film& film);
+		bool getSearch(const std::wstring& text, std::vector<SearchResult>& result);
 
 		int getErrorNo() const;
 
-		const char *getErrorStr() const;
+		const std::wstring& getErrorStr() const;
 
 	private:
-		bool send(const char * method, std::string& out);
+		bool send(const std::string& method, std::string& out);
 
-		void setError(int, const char*);
+		void setError(int, const std::wstring& );
 
-		std::string searchHost_;
-		std::string dataHost_;
+		std::wstring searchHost_;
+		std::wstring dataHost_;
 
-		std::string proxyHost_;
-		std::string proxyUser_;
+		std::wstring proxyHost_;
+		std::wstring proxyUser_;
 		bool httpProxyTunel_;
 
 		int repeating_;
@@ -37,6 +38,6 @@ namespace Filmweb {
 		int connectionTimeout_;
 
 		int errorNo_;
-		std::string errorStr_;
+		std::wstring errorStr_;
 	};
 }

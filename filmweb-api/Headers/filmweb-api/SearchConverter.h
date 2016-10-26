@@ -6,16 +6,16 @@
 
 namespace Filmweb {
 	class SearchConverter {
-		const std::string endLine = "\\a";
-		const std::string endAttr = "\\c";
+		const std::wstring endLine = L"\\a";
+		const std::wstring endAttr = L"\\c";
 
-		static bool concatToVector(const std::string& data, const std::string& endLines, std::vector<std::string>& table);
-		bool convertToSearchResult(const std::string& line, SearchResult& out);
+		static bool concatToVector(const std::wstring& data, const std::wstring& endLines, std::vector<std::wstring>& table);
+		bool convertToSearchResult(const std::wstring& line, SearchResult& out);
 
 	public:
 		SearchConverter() = default;
 		~SearchConverter() = default;
 
-		bool convertResponse(const std::string& data, std::vector<SearchResult>& table);
+		bool convertResponse(const std::wstring& data, std::vector<SearchResult>& table);
 	};
 }

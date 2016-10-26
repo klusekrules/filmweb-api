@@ -9,8 +9,28 @@
 #include "curl/curl.h"
 #include "md5.h"
 #include "SearchConverter.h"
+#include "DataConverter.h"
 
 namespace Filmweb {
+	// Convert a wide Unicode string to an UTF8 string
+	std::string utf8_encode(const std::wstring &wstr)
+	{
+		if (wstr.empty()) return std::string();
+		int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+		std::string strTo(size_needed, 0);
+		WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+		return strTo;
+	}
+
+	// Convert an UTF8 string to a wide Unicode String
+	std::wstring utf8_decode(const std::string &str)
+	{
+		if (str.empty()) return std::wstring();
+		int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+		std::wstring wstrTo(size_needed, 0);
+		MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+		return wstrTo;
+	}
 
 	static std::string url_encode(const std::string &value) {
 		std::ostringstream escaped;
@@ -41,11 +61,11 @@ namespace Filmweb {
 
 		auto searchHost = conf["searchHost"];
 		if (searchHost)
-			searchHost_ = searchHost;
+			searchHost_ = utf8_decode(searchHost);
 
 		auto dataHost = conf["dataHost"];
 		if (dataHost)
-			dataHost_ = dataHost;
+			dataHost_ = utf8_decode(dataHost);
 
 		auto proxyHost = conf["proxyHost"];
 		if (proxyHost)
@@ -53,7 +73,7 @@ namespace Filmweb {
 
 		auto proxyUser = conf["proxyUser"];
 		if (proxyUser)
-			proxyUser_ = proxyUser;
+			proxyUser_ = utf8_decode(proxyUser);
 
 		auto httpProxyTunel = conf["httpProxyTunel"];
 		if (httpProxyTunel) {
@@ -102,8 +122,8 @@ namespace Filmweb {
 		return realsize;
 	}
 
-	void Filmweb::setError(int numer, const char* komunikat) {
-		if (komunikat != NULL) {
+	void Filmweb::setError(int numer, const std::wstring& komunikat) {
+		if (!komunikat.empty()) {
 			errorNo_ = numer;
 			errorStr_ = komunikat;
 		}
@@ -113,13 +133,13 @@ namespace Filmweb {
 		}
 	}
 
-	bool Filmweb::send(const char * method, std::string& out) {
+	bool Filmweb::send(const std::string& method, std::string& out) {
 		for (int iteration = repeating_; iteration > 0; --iteration) {
 			CURL* curl = curl_easy_init();
 			if (curl) {
 				//headers = curl_slist_append(headers, "User-Agent: Mozilla / 5.0 (Linux; Android 4.1.1; Galaxy Nexus Build / JRO03C) AppleWebKit / 535.19 (KHTML, like Gecko) Chrome / 18.0.1025.166 Mobile Safari / 535.19");
 
-				curl_easy_setopt(curl, CURLOPT_URL, method);
+				curl_easy_setopt(curl, CURLOPT_URL, method.c_str());
 				curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 				curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&out);
 
@@ -141,7 +161,8 @@ namespace Filmweb {
 
 				CURLcode res = curl_easy_perform(curl);
 				if (res != CURLE_OK) {
-					setError(res, curl_easy_strerror(res));
+					auto desc = curl_easy_strerror(res);
+					setError(res, utf8_decode(desc ? desc : ""));
 					curl_easy_cleanup(curl);
 					continue;
 				}
@@ -152,7 +173,7 @@ namespace Filmweb {
 				break;
 			}
 			if (out.empty()) {
-				setError(92, "No data received");
+				setError(92, L"No data received");
 				continue;
 			}
 		}
@@ -161,7 +182,7 @@ namespace Filmweb {
 			return false;
 
 		if (out.empty()) {
-			setError(92, "No data received");
+			setError(92, L"No data received");
 			return false;
 		}
 		return true;
@@ -171,19 +192,23 @@ namespace Filmweb {
 		return errorNo_;
 	}
 
-	const char* Filmweb::getErrorStr() const {
-		return errorStr_.c_str();
+	const std::wstring& Filmweb::getErrorStr() const {
+		return errorStr_;
 	}
 
-	bool Filmweb::getDetails(int id) {
+	bool Filmweb::getFilmInfoFull(const SearchResult& element, Film& film) {
 		std::stringstream sMethod, sQuery;
 		std::string bufor;
-		sMethod << "getFilmInfoFull [" << id << "]\\n";
-		sQuery << dataHost_ << "/api?methods=" << url_encode(sMethod.str()) << "&signature=1.0,";
+		sMethod << "getFilmInfoFull [" << element.id_ << "]\\n";
+		sQuery << utf8_encode(dataHost_) << "/api?methods=" << url_encode(sMethod.str()) << "&signature=1.0,";
 		sMethod << "androidqjcGhW2JnvGT9dfCt3uT_jozR3s";
 		sQuery << ::md5(sMethod.str()) << "&version=1.0&appId=android";
-		if (!send(sQuery.str().c_str(), bufor))
+		//todo dopiero tutaj konwertuj.
+		if (!send(sQuery.str(), bufor))
 			return false;
+
+		DataConverter conv;
+		conv.convertResponse(utf8_decode(bufor), film);
 		FILE *fp;
 		fopen_s(&fp, "returnData.txt", "wb");
 		fwrite(bufor.data(), sizeof(char), bufor.size(), fp);
@@ -191,15 +216,15 @@ namespace Filmweb {
 		return true;
 	}
 
-	bool Filmweb::getSearch(const std::string & text, std::vector<SearchResult>& result) {
-		std::stringstream sQuery;
+	bool Filmweb::getSearch(const std::wstring & text, std::vector<SearchResult>& result) {
+		std::wstringstream sQuery;
 		std::string bufor;
-		sQuery << searchHost_ << url_encode(text);
-		if (!send(sQuery.str().c_str(), bufor))
+		sQuery << searchHost_ << text;
+		if (!send(utf8_encode(sQuery.str()), bufor))
 			return false;
 
 		SearchConverter conv;
-		return conv.convertResponse(bufor,result);
+		return conv.convertResponse(utf8_decode(bufor),result);
 	}
 
 	/*std::string query = "api?methods=" + url_encode(method) + "&signature=1.0," + ::md5(std::string(method) + "androidqjcGhW2JnvGT9dfCt3uT_jozR3s") + "&version=1.0&appId=android";

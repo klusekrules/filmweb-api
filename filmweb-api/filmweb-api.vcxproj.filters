@@ -33,6 +33,9 @@
     <ClInclude Include="Headers\filmweb-api\SearchConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\filmweb-api\DataConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="md5.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SearchConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
