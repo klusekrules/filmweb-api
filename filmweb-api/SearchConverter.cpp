@@ -13,7 +13,35 @@ namespace Filmweb {
 			pos = data.find(endLines, begin);
 			auto sub = data.substr(begin, pos == std::wstring::npos ? pos : pos - begin);
 			table.emplace_back(std::move(sub));
-		} while (pos != std::wstring::npos && data.size() > pos + endLines.size());
+		} while (pos != std::wstring::npos);
+
+		return true;
+	}
+
+
+	bool SearchConverter::typeTconv(const std::vector<std::wstring>& table, SearchResult& out) {
+		if (table.size() < 3)
+			return false;
+		
+		out.type_ = static_cast<char>(table[0][0]);
+		out.id_ = stoi(table[1]);
+		out.nazwaOryginalna_ = table[2];
+
+		return true;
+	}
+	
+	bool SearchConverter::typeFconv(const std::vector<std::wstring>& table, SearchResult& out) {
+		if (table.size() < 8)
+			return false;
+
+		out.type_ = static_cast<char>(table[0][0]);
+		out.id_ = stoi(table[1]);
+		out.obraz_ = table[2];
+		out.nazwaOryginalna_ = table[3];
+		out.nazwaPolski_ = table[4];
+		out.nazwaInna_ = table[5];
+		out.year_ = stoi(table[6]);
+		out.wRolachGlownych_ = table[7];
 
 		return true;
 	}
@@ -24,22 +52,16 @@ namespace Filmweb {
 		if (!concatToVector(line, endAttr, table))
 			return false;
 
-		if (table.empty())
+		if (table.empty() || table[0].empty())
 			return false;
 
-		if (table.size() >= 1 && !table[0].empty())
-			out.type_ = static_cast<char>(table[0][0]);
-
-		if (table.size() >= 2)
-			out.id_ = stoi(table[1]);
-
-		if (table.size() >= 4)
-			out.name_ = table[3];
-
-		if (table.size() >= 7)
-			out.year_ = stoi(table[6]);
-
-		return true;
+		switch (table[0][0]) {
+		case 't': return typeTconv(table, out);
+		case 'f': return typeFconv(table, out);
+		case 's': return typeFconv(table, out);
+		case 'g': return typeFconv(table, out);
+		}
+		return false;
 	}
 
 	bool SearchConverter::convertResponse(const std::wstring& data, std::vector<SearchResult>& table) {

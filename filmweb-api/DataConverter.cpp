@@ -69,6 +69,20 @@ namespace Filmweb {
 
 		if (!concatToVector(extractData(data,nawiasOtwierajacy,nawiasZamykajacy),lines))
 			return false;
+		if (lines.size() < 20)
+			return false;
+		film.tytulPolski_ = removeEscapeChars(extractData(lines[0], cudzyslow, cudzyslow));
+		film.tytulOryginalny_ = removeEscapeChars(extractData(lines[1], cudzyslow, cudzyslow));
+		film.ocena_ = std::stof(lines[2]);
+		film.liczbaGlosow_ = std::stoi(lines[3]);
+		film.gatunek_ = removeEscapeChars(extractData(lines[4], cudzyslow, cudzyslow));
+		film.rokProdukcji_ = std::stoi(lines[5]);
+		film.dlugosc_ = std::stoi(lines[6]);
+		film.strona_ = removeEscapeChars(extractData(lines[8], cudzyslow, L"/discussion" + cudzyslow));
+		film.plakat_ = removeEscapeChars(extractData(lines[11], cudzyslow, cudzyslow));
+		film.premieraSwiat_ = removeEscapeChars(extractData(lines[13], cudzyslow, cudzyslow));
+		film.premieraPolska_ = removeEscapeChars(extractData(lines[14], cudzyslow, cudzyslow));
+		film.krajProdukcji_ = removeEscapeChars(extractData(lines[18], cudzyslow, cudzyslow));
 		film.zarysFabu³y_ = removeEscapeChars(extractData(lines[19],cudzyslow,cudzyslow));
 		return true;
 	}

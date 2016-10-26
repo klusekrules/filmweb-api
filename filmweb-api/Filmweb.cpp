@@ -203,16 +203,15 @@ namespace Filmweb {
 		sQuery << utf8_encode(dataHost_) << "/api?methods=" << url_encode(sMethod.str()) << "&signature=1.0,";
 		sMethod << "androidqjcGhW2JnvGT9dfCt3uT_jozR3s";
 		sQuery << ::md5(sMethod.str()) << "&version=1.0&appId=android";
-		//todo dopiero tutaj konwertuj.
+		
 		if (!send(sQuery.str(), bufor))
 			return false;
 
 		DataConverter conv;
-		conv.convertResponse(utf8_decode(bufor), film);
-		FILE *fp;
-		fopen_s(&fp, "returnData.txt", "wb");
-		fwrite(bufor.data(), sizeof(char), bufor.size(), fp);
-		fclose(fp);
+		if(!conv.convertResponse(utf8_decode(bufor), film))
+			return false;
+		film.id_ = element.id_;
+		film.wRolachGlownych_ = std::wstring(element.wRolachGlownych_);
 		return true;
 	}
 
@@ -226,12 +225,4 @@ namespace Filmweb {
 		SearchConverter conv;
 		return conv.convertResponse(utf8_decode(bufor),result);
 	}
-
-	/*std::string query = "api?methods=" + url_encode(method) + "&signature=1.0," + ::md5(std::string(method) + "androidqjcGhW2JnvGT9dfCt3uT_jozR3s") + "&version=1.0&appId=android";
-	method = query.c_str();
-	std::string serialized;
-	if (method == NULL) {
-	setError(91, "Method name is null.");
-	return false;
-	}*/
 }

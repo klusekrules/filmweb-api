@@ -13,6 +13,7 @@ using namespace std;
 int main() {
 	_setmode(_fileno(stdout), _O_U16TEXT);
 	WConfig c(L"config.txt");
+
 	/*auto& log = SLog::Log::pobierzInstancje();
 	log.dodajGniazdoWyjsciowe([](SLog::Log::TypLogow typ, const std::string& czas, const std::string& komunikat)->void {
 		static std::fstream plik("out.log", std::fstream::app);
@@ -37,7 +38,7 @@ int main() {
 	Filmweb::Filmweb box(c);
 	std::vector<Filmweb::SearchResult> data;
 	Filmweb::Film film;
-	if (box.getSearch(std::wstring(L"Siedem"), data))
+	if (box.getSearch(std::wstring(L"Minions"), data))
 		box.getFilmInfoFull(data[1], film);
 
 	std::wcout << film.zarysFabu³y_ << std::endl << std::flush;

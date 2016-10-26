@@ -11,6 +11,8 @@ namespace Filmweb {
 
 		static bool concatToVector(const std::wstring& data, const std::wstring& endLines, std::vector<std::wstring>& table);
 		bool convertToSearchResult(const std::wstring& line, SearchResult& out);
+		bool typeTconv(const std::vector<std::wstring>& table, SearchResult& out);
+		bool typeFconv(const std::vector<std::wstring>& table, SearchResult& out);
 
 	public:
 		SearchConverter() = default;

@@ -18,5 +18,8 @@ namespace Filmweb {
 		std::wstring plakat_;
 		int rokProdukcji_;
 		int dlugosc_;
+		std::wstring premieraSwiat_;
+		std::wstring premieraPolska_;
+		std::wstring wRolachGlownych_;
 	};
 }
